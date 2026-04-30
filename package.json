@@ -1,16 +1,17 @@
 {
   "name": "exp",
   "version": "1.0.0",
-  "description": "",
+  "description": "Генератор актов выдачи ПК",
   "license": "ISC",
-  "author": "",
   "type": "module",
-  "main": "exp.js",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron .",
+    "dev": "electron . --enable-logging"
   },
   "dependencies": {
     "docx-templates": "^4.15.0",
+    "electron": "^41.3.0",
     "xlsx": "^0.18.5"
   }
 }

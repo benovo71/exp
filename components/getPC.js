@@ -1,47 +1,68 @@
+/**
+ * Работа с Excel-файлом
+ * ⚠️ Только для главного процесса (Node.js)
+ */
 import { read, utils } from "xlsx";
 import * as fs from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-function getPC() {
-  const excelPath = "C:\\JS\\exp\\IT HW equipment.xlsm";
-  const buffer = fs.readFileSync(excelPath);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const EXCEL_PATH = join(__dirname, "..", "IT HW equipment.xlsm");
+const SEARCH_FIELD = "PG Asset PC";
+
+let _cachedData = null;
+
+function loadExcelData() {
+  if (_cachedData) return _cachedData;
+
+  const buffer = fs.readFileSync(EXCEL_PATH);
   const workbook = read(buffer, { type: "buffer" });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const rows = utils.sheet_to_json(sheet, { header: 1 });
 
-  const headers = rows[1]; // заголовки на 2-й строке
-  const dataRows = rows.slice(2); // данные с 3-й строки
+  const headers = rows[1];
+  const dataRows = rows.slice(2);
 
-  return dataRows.map((row) => {
+  _cachedData = dataRows.map((row) => {
     const obj = {};
     headers.forEach((header, index) => {
-      if (header != null && header !== "" && row[index]) {
-        obj[String(header)] = row[index];
+      if (header && row[index] !== undefined) {
+        obj[String(header).trim()] = row[index];
       }
     });
     return obj;
   });
+
+  return _cachedData;
 }
 
-// 2. Функция поиска по уже готовым данным
-function findValue(tableData, value) {
-  const field = "PG Asset PC"; // ← убедитесь, что имя точное!
-  const foundRow = tableData.find(
-    (row) => String(row[field]) === String(value),
-  );
-  return foundRow || null;
+export function findPCByPG(value, field = SEARCH_FIELD) {
+  const data = loadExcelData();
+  const searchValue = String(value).trim();
+  return data.find((row) => String(row[field]).trim() === searchValue) || null;
 }
 
-// Получаем данные один раз
-const tableData = getPC();
+export function transformResult(raw) {
+  if (!raw) return null;
 
-// Ищем нужное значение
-const result = findValue(tableData, "PG20200487012");
-for (let key in result) {
-  console.log(`${result[key]}`);
-}
+  const {
+    "PC Model": pcModel,
+    "PC serial №": pcSerial,
+    "PG Asset PC": pgAssetPc,
+    "SAP asset \r\nnumber PC": sapAssetNumberPc,
+    "Asset type": assetType,
+  } = raw;
 
-if (result) {
-  console.log("Найдено:", result);
-} else {
-  console.log("Не найдено");
+  return {
+    pcModel: String(pcModel || "").trim(),
+    pcSerial: String(pcSerial || "").trim(),
+    pgAssetPc: String(pgAssetPc || "").trim(),
+    sapAssetNumberPc: String(sapAssetNumberPc || "")
+      .replace(/[\r\n]+/g, " ")
+      .trim(),
+    assetType: String(assetType || "").trim(),
+  };
 }

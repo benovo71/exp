@@ -1,13 +1,12 @@
+/**
+ * Возвращает текущую дату в формате ДД.ММ.ГГГГ
+ */
 export default function getTodayDate() {
-  const today = new Date();
+  const now = new Date();
 
-  let day = today.getDate();
-  let month = today.getMonth() + 1;
-  const year = today.getFullYear();
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = now.getFullYear();
 
-  day = day < 10 ? "0" + day : day;
-  month = month < 10 ? "0" + month : month;
-  const formattedToday = `${day}.${month}.${year}`;
-
-  return formattedToday;
+  return `${day}.${month}.${year}`;
 }
