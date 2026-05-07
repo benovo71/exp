@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (result.success) {
         setStatus("✅ Файлы созданы!", "success");
         log(`📁 ${result.files?.join(", ")}`, "success");
-        clearForm();
+        // clearForm();
       } else {
         setStatus(`❌ ${result.message}`, "error");
         log(`Ошибка: ${result.message}`, "error");
