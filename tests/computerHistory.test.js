@@ -18,7 +18,7 @@ test("builds an issue history row with a real Date value", () => {
     location: "P&G Novomoskovsk Plant (LE 614)",
     intranetName: "ageeva.a",
     userName: "Агеева Арина",
-    issuedBy: "Горшков Илья",
+    performedBy: "Горшков Илья",
     date: new Date(2026, 8, 2),
   });
 
@@ -41,7 +41,7 @@ test("builds a surrender row with the _1 act suffix", () => {
     assetType: "Laptop",
     location: "P&G Novomoskovsk Plant (LE 614)",
     userName: "Трунова Елена",
-    issuedBy: "Чечин Денис",
+    performedBy: "Чечин Денис",
     date: new Date(2026, 7, 31),
   });
 

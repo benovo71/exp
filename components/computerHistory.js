@@ -21,7 +21,7 @@ export const HISTORY_HEADERS = [
   "Дата",
   "Intranet / место хранения",
   "Пользователь",
-  "Кто выдал",
+  "Кто осуществил",
 ];
 
 function text(value) {
@@ -45,7 +45,7 @@ export function buildHistoryRow(data) {
     data.date instanceof Date ? data.date : new Date(data.date || Date.now()),
     text(data.intranetName || (isSurrender ? "IT Stock" : "")),
     text(data.userName),
-    text(data.issuedBy),
+    text(data.performedBy),
   ];
 }
 
