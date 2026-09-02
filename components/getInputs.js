@@ -12,6 +12,8 @@ export function getFormInputs() {
     performedBy: getValue("performedBy"),
     ticket: getValue("ticket"),
     intranetName: getValue("intranetName"),
+    tNumber: getValue("tNumber"),
+    newOwner: getValue("newOwner"),
     adviros: document.getElementById("adviros")?.checked ?? false,
     surrender: document.getElementById("surrender")?.checked ?? false,
     ownerChange: document.getElementById("ownerChange")?.checked ?? false,
