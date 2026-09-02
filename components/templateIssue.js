@@ -182,7 +182,7 @@ function generateOwnerChangeReports(formData) {
   const files = [];
   computers.forEach((computer, index) => {
     const acceptanceData = buildTemplateData(
-      { ...formData, issuedBy: newOwner },
+      formData,
       computer,
     );
     files.push(
@@ -194,7 +194,7 @@ function generateOwnerChangeReports(formData) {
 
     const newActNumber = String(firstNewActNumber + index);
     const issueData = buildTemplateData(
-      { ...formData, userName: newOwner, issuedBy: oldOwner },
+      { ...formData, userName: newOwner },
       { ...computer, actNumber: newActNumber },
     );
     files.push(
