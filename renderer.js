@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setStatus("✅ Файлы созданы!", "success");
         if (result.matches?.length > 1) {
           addLog(
-            `ℹ️ Найдены ещё компьютеры (${result.matches.length - 1}):`,
+            `ℹ️ Найдены компьютеры (${result.matches.length}):`,
           );
         }
         result.matches?.forEach((computer) => {
