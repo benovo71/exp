@@ -98,15 +98,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (result.success) {
         setStatus("✅ Файлы созданы!", "success");
         if (result.matches?.length > 1) {
-          addLog(
-            `ℹ️ Найдены компьютеры (${result.matches.length}):`,
-          );
+          addLog(`ℹ️ Найдены компьютеры (${result.matches.length}):`);
         }
         result.notices?.forEach((notice) => addLog(`⚠️ ${notice}`));
         result.matches?.forEach((computer) => {
+          const laptopNote = computer.isLaptop ? " | ⚠️ лэптоп, акт не создаётся" : "";
           addLog(
             `💻 ${computer.pgAssetPc || "без PG"} | ${computer.pcModel} | ` +
-              `S/N: ${computer.pcSerial || "—"}`,
+              `S/N: ${computer.pcSerial || "—"}${laptopNote}`,
           );
         });
         addLog(`📁 ${result.files?.join(", ")}`, "success");

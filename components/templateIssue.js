@@ -16,7 +16,7 @@ import {
   transformResult,
 } from "./getPC.js";
 import { getNextActNumber } from "./actNumber.js";
-import { selectComputersForTransfer } from "./ownershipTransfer.js";
+import { selectComputersForTransfer, isLaptop } from "./ownershipTransfer.js";
 import {
   normalizeText,
   sanitizeFileName,
@@ -207,11 +207,12 @@ function generateOwnerChangeReports(formData) {
                 .join(", "),
           ]
         : [],
-    matches: transfer.computers.map((computer) => ({
+    matches: allComputers.map((computer) => ({
       pgAssetPc: computer.pgAssetPc,
       pcModel: computer.pcModel,
       pcSerial: computer.pcSerial,
       actNumber: computer.actNumber,
+      isLaptop: isLaptop(computer.assetType),
     })),
   };
 }
@@ -235,5 +236,6 @@ export default function generateIssueReport(formData = {}) {
     files: result.files,
     outputDir: OUTPUT_DIR,
     matches: result.matches,
+    notices: result.notices ?? [],
   };
 }
