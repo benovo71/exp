@@ -102,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
             `ℹ️ Найдены компьютеры (${result.matches.length}):`,
           );
         }
+        result.notices?.forEach((notice) => addLog(`⚠️ ${notice}`));
         result.matches?.forEach((computer) => {
           addLog(
             `💻 ${computer.pgAssetPc || "без PG"} | ${computer.pcModel} | ` +

@@ -7,7 +7,10 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-const EXCEL_PATH = join(dirname(dirname(fileURLToPath(import.meta.url))), "IT HW equipment.xlsm");
+const EXCEL_PATH = join(
+  dirname(dirname(fileURLToPath(import.meta.url))),
+  "IT HW equipment.xlsm",
+);
 const SEARCH_FIELD = "PG Asset PC";
 const T_NUMBER_FIELD = "TT-Number";
 const ACT_NUMBER_FIELD = "Акт приема передачи №";
@@ -62,7 +65,8 @@ export function transformResult(raw) {
     "PC serial №": pcSerial,
     "PG Asset PC": pgAssetPc,
     "SAP asset \r\nnumber PC": sapAssetNumberPc,
-    "Asset type": assetType,
+    Type: assetType,
+    "Asset type": legacyAssetType,
     [ACT_NUMBER_FIELD]: actNumber,
   } = raw;
 
@@ -73,7 +77,7 @@ export function transformResult(raw) {
     sapAssetNumberPc: String(sapAssetNumberPc || "")
       .replace(/[\r\n]+/g, " ")
       .trim(),
-    assetType: String(assetType || "").trim(),
+    assetType: String(assetType || legacyAssetType || "").trim(),
     actNumber: String(actNumber || "").trim(),
   };
 }

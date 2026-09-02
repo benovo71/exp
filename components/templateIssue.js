@@ -16,6 +16,7 @@ import {
   transformResult,
 } from "./getPC.js";
 import { getNextActNumber } from "./actNumber.js";
+import { selectComputersForTransfer } from "./ownershipTransfer.js";
 import {
   normalizeText,
   sanitizeFileName,
@@ -166,36 +167,22 @@ function generateOwnerChangeReports(formData) {
     );
   }
 
-  assertRequiredFile(TEMPLATES.acceptanceAct, "шаблон акта сдачи");
   assertRequiredFile(TEMPLATES.issueAct, "шаблон акта выдачи");
 
-  const computers = rawPCs.map(transformResult);
-  const missingActNumber = computers.find((computer) => !computer.actNumber);
-  if (missingActNumber) {
+  const allComputers = rawPCs.map(transformResult);
+  const transfer = selectComputersForTransfer(allComputers);
+  if (!transfer.computers.length) {
     throw new Error(
-      `У компьютера ${missingActNumber.pgAssetPc || "без PG номера"} ` +
-        "не указан номер акта приема-передачи в Excel",
+      "После исключения единственного лэптопа не осталось компьютеров для передачи",
     );
   }
 
-  const oldOwner = sanitizePersonName(formData.userName);
   const newOwner = sanitizePersonName(formData.newOwner);
   const firstNewActNumber = getNextActNumber();
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
   const files = [];
-  computers.forEach((computer, index) => {
-    const acceptanceData = buildTemplateData(
-      formData,
-      computer,
-    );
-    files.push(
-      saveReport(
-        renderDocx(TEMPLATES.acceptanceAct, acceptanceData),
-        `${computer.actNumber}_1 ${oldOwner}.docx`,
-      ),
-    );
-
+  transfer.computers.forEach((computer, index) => {
     const newActNumber = String(firstNewActNumber + index);
     const issueData = buildTemplateData(
       { ...formData, userName: newOwner },
@@ -211,7 +198,15 @@ function generateOwnerChangeReports(formData) {
 
   return {
     files,
-    matches: computers.map((computer) => ({
+    notices: [
+      ...(transfer.singleLaptopExcluded
+        ? ["Единственный лэптоп исключен из передачи"]
+        : []),
+      ...(transfer.laptopCount > 1
+        ? [`Найдено лэптопов: ${transfer.laptopCount}`]
+        : []),
+    ],
+    matches: transfer.computers.map((computer) => ({
       pgAssetPc: computer.pgAssetPc,
       pcModel: computer.pcModel,
       pcSerial: computer.pcSerial,
