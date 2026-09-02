@@ -12,6 +12,7 @@ import getTodayDate from "./getTodayDate.js";
 import {
   findPCByPG,
   findPCsByPG,
+  findPCsByTNumber,
   transformResult,
 } from "./getPC.js";
 import { getNextActNumber } from "./actNumber.js";
@@ -153,6 +154,68 @@ function generateSurrenderReports(formData) {
   };
 }
 
+function generateOwnerChangeReports(formData) {
+  const rawPCs = findPCsByTNumber(formData.tNumber);
+  if (!rawPCs.length) {
+    throw new Error(
+      `Компьютеры владельца с T number "${formData.tNumber}" не найдены в базе Excel`,
+    );
+  }
+
+  assertRequiredFile(TEMPLATES.acceptanceAct, "шаблон акта сдачи");
+  assertRequiredFile(TEMPLATES.issueAct, "шаблон акта выдачи");
+
+  const computers = rawPCs.map(transformResult);
+  const missingActNumber = computers.find((computer) => !computer.actNumber);
+  if (missingActNumber) {
+    throw new Error(
+      `У компьютера ${missingActNumber.pgAssetPc || "без PG номера"} ` +
+        "не указан номер акта приема-передачи в Excel",
+    );
+  }
+
+  const oldOwner = sanitizePersonName(formData.userName);
+  const newOwner = sanitizePersonName(formData.newOwner);
+  const firstNewActNumber = getNextActNumber();
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+
+  const files = [];
+  computers.forEach((computer, index) => {
+    const acceptanceData = buildTemplateData(
+      { ...formData, issuedBy: newOwner },
+      computer,
+    );
+    files.push(
+      saveReport(
+        renderDocx(TEMPLATES.acceptanceAct, acceptanceData),
+        `${computer.actNumber}_1 ${oldOwner}.docx`,
+      ),
+    );
+
+    const newActNumber = String(firstNewActNumber + index);
+    const issueData = buildTemplateData(
+      { ...formData, userName: newOwner, issuedBy: oldOwner },
+      { ...computer, actNumber: newActNumber },
+    );
+    files.push(
+      saveReport(
+        renderDocx(TEMPLATES.issueAct, issueData),
+        `${newActNumber} ${newOwner}.docx`,
+      ),
+    );
+  });
+
+  return {
+    files,
+    matches: computers.map((computer) => ({
+      pgAssetPc: computer.pgAssetPc,
+      pcModel: computer.pcModel,
+      pcSerial: computer.pcSerial,
+      actNumber: computer.actNumber,
+    })),
+  };
+}
+
 /**
  * Генерирует документы выдачи или сдачи компьютера.
  * @param {Object} formData — данные формы
@@ -160,9 +223,11 @@ function generateSurrenderReports(formData) {
  */
 export default function generateIssueReport(formData = {}) {
   const validatedFormData = validateFormData(formData);
-  const result = validatedFormData.surrender
-    ? generateSurrenderReports(validatedFormData)
-    : generateIssueReports(validatedFormData);
+  const result = validatedFormData.ownerChange
+    ? generateOwnerChangeReports(validatedFormData)
+    : validatedFormData.surrender
+      ? generateSurrenderReports(validatedFormData)
+      : generateIssueReports(validatedFormData);
 
   return {
     success: true,

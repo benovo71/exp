@@ -23,14 +23,25 @@
         Сдача компа
       </label>
 
+      <label class="checkbox-field" for="ownerChange">
+        <input type="checkbox" id="ownerChange" />
+        Смена владельца
+      </label>
+
       <label class="issue-only-field" for="intranetName">👤 PG name</label>
       <input class="issue-only-field" type="text" id="intranetName" placeholder="gorshkov.i" required />
 
       <label class="issue-only-field" for="ticket">RITM / INC</label>
       <input class="issue-only-field" type="text" id="ticket" placeholder="RITM8463161" required />
 
-      <label for="pgNumber">🔢 PG номер</label>
-      <input type="text" id="pgNumber" placeholder="PG1047176" required />
+      <label class="pg-search-field" for="pgNumber">🔢 PG номер</label>
+      <input class="pg-search-field" type="text" id="pgNumber" placeholder="PG1047176" required />
+
+      <label class="owner-change-field" for="tNumber">🔢 T number владельца</label>
+      <input class="owner-change-field" type="text" id="tNumber" placeholder="CY8088" />
+
+      <label class="owner-change-field" for="newOwner">👤 Новый владелец</label>
+      <input class="owner-change-field" type="text" id="newOwner" placeholder="Иванов Иван" />
 
       <label for="issuedBy">✍️ Кто выдал</label>
       <input type="text" id="issuedBy" placeholder="Петров П.П." required />

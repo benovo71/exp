@@ -14,10 +14,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const reportForm = document.getElementById("reportForm");
   const generateButton = document.getElementById("generateBtn");
   const surrenderCheckbox = document.getElementById("surrender");
+  const ownerChangeCheckbox = document.getElementById("ownerChange");
   const statusElement = document.getElementById("status");
   const logElement = document.getElementById("log");
   const issueOnlyFields = [...document.querySelectorAll(".issue-only-field")];
-  const returnOnlyFields = [...document.querySelectorAll(".return-only-field")];
+  const pgSearchFields = [...document.querySelectorAll(".pg-search-field")];
+  const ownerChangeFields = [
+    ...document.querySelectorAll(".owner-change-field"),
+  ];
 
   function addLog(message, type = "info") {
     const entry = document.createElement("div");
@@ -41,18 +45,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setMode() {
     const isSurrender = surrenderCheckbox.checked;
+    const isOwnerChange = ownerChangeCheckbox.checked;
 
     issueOnlyFields.forEach((field) => {
-      field.hidden = isSurrender;
-      if (field.matches("input")) field.required = !isSurrender;
+      field.hidden = isSurrender || isOwnerChange;
+      if (field.matches("input")) {
+        field.required = !isSurrender && !isOwnerChange;
+      }
     });
-    returnOnlyFields.forEach((field) => {
-      field.hidden = !isSurrender;
-      if (field.matches("input")) field.required = isSurrender;
+    pgSearchFields.forEach((field) => {
+      field.hidden = isOwnerChange;
+      if (field.matches("input")) field.required = !isOwnerChange;
+    });
+    ownerChangeFields.forEach((field) => {
+      field.hidden = !isOwnerChange;
+      if (field.matches("input")) field.required = isOwnerChange;
     });
   }
 
-  surrenderCheckbox.addEventListener("change", setMode);
+  surrenderCheckbox.addEventListener("change", () => {
+    if (surrenderCheckbox.checked) ownerChangeCheckbox.checked = false;
+    setMode();
+  });
+  ownerChangeCheckbox.addEventListener("change", () => {
+    if (ownerChangeCheckbox.checked) surrenderCheckbox.checked = false;
+    setMode();
+  });
   setMode();
 
   reportForm.addEventListener("submit", async (event) => {

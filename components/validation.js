@@ -14,16 +14,31 @@ export function validateFormData(formData = {}) {
     performedBy: normalizeText(formData.performedBy),
     ticket: normalizeText(formData.ticket),
     intranetName: normalizeText(formData.intranetName),
+    newOwner: normalizeText(formData.newOwner),
+    tNumber: normalizeText(formData.tNumber),
     adviros: Boolean(formData.adviros),
     surrender: Boolean(formData.surrender),
+    ownerChange: Boolean(formData.ownerChange),
   };
 
-  const requiredFields = data.surrender
-    ? ["userName", "pgNumber"]
-    : REQUIRED_FIELDS;
+  const requiredFields = data.ownerChange
+    ? ["userName", "tNumber", "newOwner"]
+    : data.surrender
+      ? ["userName", "pgNumber"]
+      : REQUIRED_FIELDS;
   const missingField = requiredFields.find((field) => !data[field]);
+
+  if (missingField === "userName") {
+    throw new Error("Не указано имя пользователя");
+  }
   if (missingField === "pgNumber") {
     throw new Error("Не указан PG номер для поиска компьютера");
+  }
+  if (missingField === "tNumber") {
+    throw new Error("Не указан T number для поиска владельца");
+  }
+  if (missingField === "newOwner") {
+    throw new Error("Не указан новый владелец");
   }
 
   return data;

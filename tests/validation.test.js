@@ -18,7 +18,6 @@ test("validateFormData trims fields and preserves optional checklist data", () =
       ticket: " INC-12345 ",
       intranetName: " ivanov.ii ",
       adviros: true,
-      surrender: false,
     }),
     {
       userName: "Иванов И.И.",
@@ -27,8 +26,11 @@ test("validateFormData trims fields and preserves optional checklist data", () =
       performedBy: "Сидоров С.С.",
       ticket: "INC-12345",
       intranetName: "ivanov.ii",
+      newOwner: "",
+      tNumber: "",
       adviros: true,
       surrender: false,
+      ownerChange: false,
     },
   );
 });
@@ -54,8 +56,35 @@ test("validateFormData uses PG number for surrender", () => {
       performedBy: "",
       ticket: "",
       intranetName: "",
+      newOwner: "",
+      tNumber: "",
       adviros: false,
       surrender: true,
+      ownerChange: false,
+    },
+  );
+});
+
+test("validateFormData accepts T number and new owner for ownership change", () => {
+  assert.deepEqual(
+    validateFormData({
+      userName: "Старый Владелец",
+      tNumber: "CY8088",
+      newOwner: "Новый Владелец",
+      ownerChange: true,
+    }),
+    {
+      userName: "Старый Владелец",
+      pgNumber: "",
+      issuedBy: "",
+      performedBy: "",
+      ticket: "",
+      intranetName: "",
+      newOwner: "Новый Владелец",
+      tNumber: "CY8088",
+      adviros: false,
+      surrender: false,
+      ownerChange: true,
     },
   );
 });

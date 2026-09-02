@@ -9,6 +9,7 @@ import { dirname, join } from "node:path";
 
 const EXCEL_PATH = join(dirname(dirname(fileURLToPath(import.meta.url))), "IT HW equipment.xlsm");
 const SEARCH_FIELD = "PG Asset PC";
+const T_NUMBER_FIELD = "TT-Number";
 const ACT_NUMBER_FIELD = "Акт приема передачи №";
 
 let cachedData = null;
@@ -44,6 +45,13 @@ export function findPCsByPG(value, field = SEARCH_FIELD) {
 
 export function findPCByPG(value, field = SEARCH_FIELD) {
   return findPCsByPG(value, field)[0] || null;
+}
+
+export function findPCsByTNumber(value) {
+  const searchValue = String(value).trim();
+  return loadExcelData().filter(
+    (row) => String(row[T_NUMBER_FIELD]).trim() === searchValue,
+  );
 }
 
 export function transformResult(raw) {
