@@ -77,7 +77,11 @@ function buildTemplateData(formData, pcData) {
     pgAssetPc: normalizeText(pcData.pgAssetPc),
     sapAssetNumberPc: normalizeText(pcData.sapAssetNumberPc),
     assetType: normalizeText(pcData.assetType),
+    conformity: formData.broken
+      ? `не соответствует: ${normalizeText(formData.brokenDescription)}`
+      : "соответствует:",
   };
+
 }
 
 function saveReport(buffer, fileName) {
@@ -168,6 +172,7 @@ function generateSurrenderReports(formData) {
         ...computer,
         userName: formData.userName,
         performedBy: formData.performedBy,
+        broken: formData.broken,
         date: new Date(),
       }),
     ),

@@ -41,7 +41,7 @@ export function buildHistoryRow(data) {
     text(data.assetType),
     text(data.location || "P&G Novomoskovsk Plant (LE 614)"),
     isSurrender ? "In use" : "On stock",
-    isSurrender ? "On stock" : "In use",
+    isSurrender ? (data.broken ? "Broken" : "On stock") : "In use",
     data.date instanceof Date ? data.date : new Date(data.date || Date.now()),
     text(data.intranetName || (isSurrender ? "IT Stock" : "")),
     text(data.userName),

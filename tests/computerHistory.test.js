@@ -42,11 +42,12 @@ test("builds a surrender row with the _1 act suffix", () => {
     location: "P&G Novomoskovsk Plant (LE 614)",
     userName: "Трунова Елена",
     performedBy: "Чечин Денис",
+    broken: true,
     date: new Date(2026, 7, 31),
   });
 
   assert.equal(row[0], "6612_1");
   assert.equal(row[7], "In use");
-  assert.equal(row[8], "On stock");
+  assert.equal(row[8], "Broken");
   assert.equal(row[10], "IT Stock");
 });

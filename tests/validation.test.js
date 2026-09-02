@@ -31,6 +31,8 @@ test("validateFormData trims fields and preserves optional checklist data", () =
       adviros: true,
       surrender: false,
       ownerChange: false,
+      broken: false,
+      brokenDescription: "",
     },
   );
 });
@@ -61,6 +63,8 @@ test("validateFormData uses PG number for surrender", () => {
       adviros: false,
       surrender: true,
       ownerChange: false,
+      broken: false,
+      brokenDescription: "",
     },
   );
 });
@@ -72,6 +76,8 @@ test("validateFormData accepts T number and new owner for ownership change", () 
       tNumber: "CY8088",
       newOwner: "Новый Владелец",
       ownerChange: true,
+      broken: false,
+      brokenDescription: "",
     }),
     {
       userName: "Старый Владелец",
@@ -85,6 +91,8 @@ test("validateFormData accepts T number and new owner for ownership change", () 
       adviros: false,
       surrender: false,
       ownerChange: true,
+      broken: false,
+      brokenDescription: "",
     },
   );
 });

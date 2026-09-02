@@ -22,6 +22,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerChangeFields = [
     ...document.querySelectorAll(".owner-change-field"),
   ];
+  const surrenderOnlyFields = [
+    ...document.querySelectorAll(".surrender-only-field"),
+  ];
+  const brokenCheckbox = document.getElementById("broken");
+  const brokenDescription = document.getElementById("brokenDescription");
 
   function addLog(message, type = "info") {
     const entry = document.createElement("div");
@@ -61,6 +66,13 @@ document.addEventListener("DOMContentLoaded", () => {
       field.hidden = !isOwnerChange;
       if (field.matches("input")) field.required = isOwnerChange;
     });
+    surrenderOnlyFields.forEach((field) => {
+      const isVisible = isSurrender && (field.id !== "brokenDescription" || brokenCheckbox.checked);
+      field.hidden = !isVisible;
+      if (field.matches("input") && field.id === "brokenDescription") {
+        field.required = isVisible;
+      }
+    });
   }
 
   surrenderCheckbox.addEventListener("change", () => {
@@ -71,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (ownerChangeCheckbox.checked) surrenderCheckbox.checked = false;
     setMode();
   });
+  brokenCheckbox.addEventListener("change", setMode);
   setMode();
 
   reportForm.addEventListener("submit", async (event) => {

@@ -14,6 +14,8 @@ export function getFormInputs() {
     intranetName: getValue("intranetName"),
     tNumber: getValue("tNumber"),
     newOwner: getValue("newOwner"),
+    broken: document.getElementById("broken")?.checked ?? false,
+    brokenDescription: getValue("brokenDescription"),
     adviros: document.getElementById("adviros")?.checked ?? false,
     surrender: document.getElementById("surrender")?.checked ?? false,
     ownerChange: document.getElementById("ownerChange")?.checked ?? false,

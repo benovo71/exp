@@ -19,6 +19,8 @@ export function validateFormData(formData = {}) {
     adviros: Boolean(formData.adviros),
     surrender: Boolean(formData.surrender),
     ownerChange: Boolean(formData.ownerChange),
+    broken: Boolean(formData.broken),
+    brokenDescription: normalizeText(formData.brokenDescription),
   };
 
   const requiredFields = data.ownerChange
@@ -39,6 +41,9 @@ export function validateFormData(formData = {}) {
   }
   if (missingField === "newOwner") {
     throw new Error("Не указан новый владелец");
+  }
+  if (data.surrender && data.broken && !data.brokenDescription) {
+    throw new Error("Не указано описание неисправности");
   }
 
   return data;
