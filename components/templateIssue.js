@@ -160,7 +160,10 @@ function generateSurrenderReports(formData) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
   const files = computers.slice(0, 1).map((computer) => {
-    const templateData = buildTemplateData(formData, computer);
+    const templateData = buildTemplateData(
+      formData,
+      { ...computer, actNumber: `${computer.actNumber}_1` },
+    );
     const fileName = `${computer.actNumber}_1 ${personName}.docx`;
     return saveReport(renderDocx(TEMPLATES.acceptanceAct, templateData), fileName);
   });
