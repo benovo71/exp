@@ -16,6 +16,7 @@ import {
   transformResult,
 } from "./getPC.js";
 import { getNextActNumber } from "./actNumber.js";
+import { appendHistoryRows, buildHistoryRow } from "./computerHistory.js";
 import { selectComputersForTransfer, isLaptop } from "./ownershipTransfer.js";
 import {
   normalizeText,
@@ -117,6 +118,18 @@ function generateIssueReports(formData) {
     ),
   ];
 
+  appendHistoryRows([
+    buildHistoryRow({
+      operation: "issue",
+      ...transformResult(rawPCData),
+      actNumber,
+      intranetName: formData.intranetName,
+      userName: formData.userName,
+      issuedBy: formData.issuedBy,
+      date: new Date(),
+    }),
+  ]);
+
   return { files, matches: [] };
 }
 
@@ -147,6 +160,18 @@ function generateSurrenderReports(formData) {
     const fileName = `${computer.actNumber}_1 ${personName}.docx`;
     return saveReport(renderDocx(TEMPLATES.acceptanceAct, templateData), fileName);
   });
+
+  appendHistoryRows(
+    computers.slice(0, 1).map((computer) =>
+      buildHistoryRow({
+        operation: "surrender",
+        ...computer,
+        userName: formData.userName,
+        issuedBy: formData.issuedBy,
+        date: new Date(),
+      }),
+    ),
+  );
 
   return {
     files,
@@ -195,6 +220,20 @@ function generateOwnerChangeReports(formData) {
       ),
     );
   });
+
+  appendHistoryRows(
+    transfer.computers.map((computer, index) =>
+      buildHistoryRow({
+        operation: "issue",
+        ...computer,
+        actNumber: firstNewActNumber + index,
+        intranetName: formData.intranetName,
+        userName: newOwner,
+        issuedBy: formData.issuedBy,
+        date: new Date(),
+      }),
+    ),
+  );
 
   return {
     files,
