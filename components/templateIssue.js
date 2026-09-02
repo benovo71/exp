@@ -1,5 +1,5 @@
 /**
- * Генерация разрешения и акта выдачи компьютера.
+ * Генерация документов выдачи и сдачи компьютера.
  * Выполняется только в главном процессе Electron.
  */
 import fs from "node:fs";
@@ -9,7 +9,11 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import getTodayDate from "./getTodayDate.js";
-import { findPCByPG, transformResult } from "./getPC.js";
+import {
+  findPCByPG,
+  findPCsByPG,
+  transformResult,
+} from "./getPC.js";
 import { getNextActNumber } from "./actNumber.js";
 import {
   normalizeText,
@@ -24,6 +28,7 @@ const OUTPUT_DIR = join(PROJECT_ROOT, "output");
 const TEMPLATES = {
   permission: join(PROJECT_ROOT, "templateIssue.docx"),
   issueAct: join(PROJECT_ROOT, "templateActOfIssuingPC.docx"),
+  acceptanceAct: join(PROJECT_ROOT, "templateActOfAcceptancePC.docx"),
   checklist: join(PROJECT_ROOT, "checklist.docx"),
 };
 
@@ -55,10 +60,11 @@ function buildTemplateData(formData, pcData) {
     performedBy: normalizeText(formData.performedBy, "Не указано"),
     ticket: normalizeText(formData.ticket, "Не указано"),
     intranetName: normalizeText(formData.intranetName, "Не указано"),
+    department: formData.adviros ? "Adviros" : "PG",
     date: today,
     issued: today,
     created: today,
-    actNumber: "1",
+    actNumber: normalizeText(pcData.actNumber, "1"),
     pcModel: normalizeText(pcData.pcModel),
     pcSerial: normalizeText(pcData.pcSerial),
     pgAssetPc: normalizeText(pcData.pgAssetPc),
@@ -72,55 +78,97 @@ function saveReport(buffer, fileName) {
   return fileName;
 }
 
-/**
- * Генерирует разрешение, акт выдачи и чеклист на основе формы и Excel-базы.
- * @param {Object} formData — данные формы
- * @returns {{success: boolean, message: string, files: string[], outputDir: string}}
- */
-export default function generateIssueReport(formData = {}) {
-  const validatedFormData = validateFormData(formData);
-  const rawPCData = findPCByPG(validatedFormData.pgNumber);
-
+function generateIssueReports(formData) {
+  const rawPCData = findPCByPG(formData.pgNumber);
   if (!rawPCData) {
-    throw new Error(
-      `ПК с номером "${validatedFormData.pgNumber}" не найден в базе Excel`,
-    );
+    throw new Error(`ПК с номером "${formData.pgNumber}" не найден в базе Excel`);
   }
 
   assertRequiredFile(TEMPLATES.permission, "шаблон разрешения");
   assertRequiredFile(TEMPLATES.issueAct, "шаблон акта выдачи");
   assertRequiredFile(TEMPLATES.checklist, "шаблон чеклиста");
 
-  const templateData = buildTemplateData(
-    validatedFormData,
-    transformResult(rawPCData),
-  );
-  const actNumber = getNextActNumber();
+  const templateData = buildTemplateData(formData, transformResult(rawPCData));
   const personName = sanitizePersonName(templateData.userName);
-  const permissionFileName = `${sanitizeFileName(templateData.userName)}_${Date.now()}_Permission.docx`;
-  const actFileName = `${actNumber} ${personName}.docx`;
-  const checklistFileName = `${templateData.pgNumber}.docx`;
+  const baseName = `${sanitizeFileName(templateData.userName)}_${Date.now()}`;
+  const actNumber = getNextActNumber();
 
   templateData.actNumber = String(actNumber);
-
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
   const files = [
     saveReport(
       renderDocx(TEMPLATES.permission, templateData),
-      permissionFileName,
+      `${baseName}_Permission.docx`,
     ),
-    saveReport(renderDocx(TEMPLATES.issueAct, templateData), actFileName),
+    saveReport(
+      renderDocx(TEMPLATES.issueAct, templateData),
+      `${actNumber} ${personName}.docx`,
+    ),
     saveReport(
       renderDocx(TEMPLATES.checklist, templateData),
-      checklistFileName,
+      `${templateData.pgNumber}.docx`,
     ),
   ];
+
+  return { files, matches: [] };
+}
+
+function generateSurrenderReports(formData) {
+  const rawPCs = findPCsByPG(formData.pgNumber);
+  if (!rawPCs.length) {
+    throw new Error(
+      `Компьютер с PG номером "${formData.pgNumber}" не найден в базе Excel`,
+    );
+  }
+
+  assertRequiredFile(TEMPLATES.acceptanceAct, "шаблон акта сдачи");
+
+  const computers = rawPCs.map(transformResult);
+  const missingActNumber = computers.find((computer) => !computer.actNumber);
+  if (missingActNumber) {
+    throw new Error(
+      `У компьютера ${missingActNumber.pgAssetPc || "без PG номера"} ` +
+        "не указан номер акта приема-передачи в Excel",
+    );
+  }
+
+  const personName = sanitizePersonName(formData.userName);
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+
+  const files = computers.slice(0, 1).map((computer) => {
+    const templateData = buildTemplateData(formData, computer);
+    const fileName = `${computer.actNumber}_1 ${personName}.docx`;
+    return saveReport(renderDocx(TEMPLATES.acceptanceAct, templateData), fileName);
+  });
+
+  return {
+    files,
+    matches: computers.map((computer) => ({
+      pgAssetPc: computer.pgAssetPc,
+      pcModel: computer.pcModel,
+      pcSerial: computer.pcSerial,
+      actNumber: computer.actNumber,
+    })),
+  };
+}
+
+/**
+ * Генерирует документы выдачи или сдачи компьютера.
+ * @param {Object} formData — данные формы
+ * @returns {{success: boolean, message: string, files: string[], outputDir: string, matches: Object[]}}
+ */
+export default function generateIssueReport(formData = {}) {
+  const validatedFormData = validateFormData(formData);
+  const result = validatedFormData.surrender
+    ? generateSurrenderReports(validatedFormData)
+    : generateIssueReports(validatedFormData);
 
   return {
     success: true,
     message: "Документы успешно созданы",
-    files,
+    files: result.files,
     outputDir: OUTPUT_DIR,
+    matches: result.matches,
   };
 }

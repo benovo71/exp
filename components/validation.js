@@ -14,14 +14,16 @@ export function validateFormData(formData = {}) {
     performedBy: normalizeText(formData.performedBy),
     ticket: normalizeText(formData.ticket),
     intranetName: normalizeText(formData.intranetName),
+    adviros: Boolean(formData.adviros),
+    surrender: Boolean(formData.surrender),
   };
 
-  const missingField = REQUIRED_FIELDS.find((field) => !data[field]);
+  const requiredFields = data.surrender
+    ? ["userName", "pgNumber"]
+    : REQUIRED_FIELDS;
+  const missingField = requiredFields.find((field) => !data[field]);
   if (missingField === "pgNumber") {
-    throw new Error("Не указан PG номер для поиска");
-  }
-  if (missingField === "userName") {
-    throw new Error("Не указано имя пользователя");
+    throw new Error("Не указан PG номер для поиска компьютера");
   }
 
   return data;

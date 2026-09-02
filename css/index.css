@@ -43,6 +43,28 @@ h1 {
   box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
 }
 
+.form input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.return-only-field {
+  display: none;
+}
+
+.issue-only-field[hidden],
+.return-only-field[hidden] {
+  display: none;
+}
+
+
 button {
   padding: 12px 24px;
   background: #0078d4;

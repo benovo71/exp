@@ -39,6 +39,7 @@ ipcMain.handle("generate-report", async (_event, formData) => {
       message: "Документы созданы",
       files: result.files,
       outputDir: result.outputDir,
+      matches: result.matches,
     };
   } catch (err) {
     console.error("❌ Ошибка в main:", err.message);

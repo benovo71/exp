@@ -13,8 +13,11 @@ function getTime() {
 document.addEventListener("DOMContentLoaded", () => {
   const reportForm = document.getElementById("reportForm");
   const generateButton = document.getElementById("generateBtn");
+  const surrenderCheckbox = document.getElementById("surrender");
   const statusElement = document.getElementById("status");
   const logElement = document.getElementById("log");
+  const issueOnlyFields = [...document.querySelectorAll(".issue-only-field")];
+  const returnOnlyFields = [...document.querySelectorAll(".return-only-field")];
 
   function addLog(message, type = "info") {
     const entry = document.createElement("div");
@@ -36,6 +39,22 @@ document.addEventListener("DOMContentLoaded", () => {
       : "🚀 Сгенерировать";
   }
 
+  function setMode() {
+    const isSurrender = surrenderCheckbox.checked;
+
+    issueOnlyFields.forEach((field) => {
+      field.hidden = isSurrender;
+      if (field.matches("input")) field.required = !isSurrender;
+    });
+    returnOnlyFields.forEach((field) => {
+      field.hidden = !isSurrender;
+      if (field.matches("input")) field.required = isSurrender;
+    });
+  }
+
+  surrenderCheckbox.addEventListener("change", setMode);
+  setMode();
+
   reportForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -53,13 +72,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const formData = getFormInputs();
     setGeneratingState(true);
     setStatus("");
-    addLog(`🚀 Запуск: ${formData.userName} | ${formData.pgNumber}`);
+    addLog(`🚀 Запуск: ${formData.userName}`);
 
     try {
       const result = await window.electronAPI.generateReport(formData);
 
       if (result.success) {
         setStatus("✅ Файлы созданы!", "success");
+        if (result.matches?.length > 1) {
+          addLog(
+            `ℹ️ Найдены ещё компьютеры (${result.matches.length - 1}):`,
+          );
+        }
+        result.matches?.forEach((computer) => {
+          addLog(
+            `💻 ${computer.pgAssetPc || "без PG"} | ${computer.pcModel} | ` +
+              `S/N: ${computer.pcSerial || "—"}`,
+          );
+        });
         addLog(`📁 ${result.files?.join(", ")}`, "success");
       } else {
         setStatus(`❌ ${result.message}`, "error");

@@ -1,48 +1,49 @@
 /**
- * Работа с Excel-файлом
- * ⚠️ Только для главного процесса (Node.js)
+ * Работа с Excel-файлом.
+ * Выполняется только в главном процессе Electron.
  */
 import { read, utils } from "xlsx";
 import fs from "node:fs";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const EXCEL_PATH = join(__dirname, "..", "IT HW equipment.xlsm");
+const EXCEL_PATH = join(dirname(dirname(fileURLToPath(import.meta.url))), "IT HW equipment.xlsm");
 const SEARCH_FIELD = "PG Asset PC";
+const ACT_NUMBER_FIELD = "Акт приема передачи №";
 
-let _cachedData = null;
+let cachedData = null;
 
 function loadExcelData() {
-  if (_cachedData) return _cachedData;
+  if (cachedData) return cachedData;
 
   const buffer = fs.readFileSync(EXCEL_PATH);
   const workbook = read(buffer, { type: "buffer" });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const rows = utils.sheet_to_json(sheet, { header: 1 });
-
   const headers = rows[1];
-  const dataRows = rows.slice(2);
 
-  _cachedData = dataRows.map((row) => {
-    const obj = {};
+  cachedData = rows.slice(2).map((row) => {
+    const result = {};
     headers.forEach((header, index) => {
       if (header && row[index] !== undefined) {
-        obj[String(header).trim()] = row[index];
+        result[String(header).trim()] = row[index];
       }
     });
-    return obj;
+    return result;
   });
 
-  return _cachedData;
+  return cachedData;
+}
+
+export function findPCsByPG(value, field = SEARCH_FIELD) {
+  const searchValue = String(value).trim();
+  return loadExcelData().filter(
+    (row) => String(row[field]).trim() === searchValue,
+  );
 }
 
 export function findPCByPG(value, field = SEARCH_FIELD) {
-  const data = loadExcelData();
-  const searchValue = String(value).trim();
-  return data.find((row) => String(row[field]).trim() === searchValue) || null;
+  return findPCsByPG(value, field)[0] || null;
 }
 
 export function transformResult(raw) {
@@ -54,6 +55,7 @@ export function transformResult(raw) {
     "PG Asset PC": pgAssetPc,
     "SAP asset \r\nnumber PC": sapAssetNumberPc,
     "Asset type": assetType,
+    [ACT_NUMBER_FIELD]: actNumber,
   } = raw;
 
   return {
@@ -64,5 +66,6 @@ export function transformResult(raw) {
       .replace(/[\r\n]+/g, " ")
       .trim(),
     assetType: String(assetType || "").trim(),
+    actNumber: String(actNumber || "").trim(),
   };
 }

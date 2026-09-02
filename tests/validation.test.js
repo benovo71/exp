@@ -17,6 +17,8 @@ test("validateFormData trims fields and preserves optional checklist data", () =
       performedBy: " Сидоров С.С. ",
       ticket: " INC-12345 ",
       intranetName: " ivanov.ii ",
+      adviros: true,
+      surrender: false,
     }),
     {
       userName: "Иванов И.И.",
@@ -25,6 +27,8 @@ test("validateFormData trims fields and preserves optional checklist data", () =
       performedBy: "Сидоров С.С.",
       ticket: "INC-12345",
       intranetName: "ivanov.ii",
+      adviros: true,
+      surrender: false,
     },
   );
 });
@@ -33,6 +37,26 @@ test("validateFormData rejects a missing PG number", () => {
   assert.throws(
     () => validateFormData({ userName: "Иванов И.И." }),
     /Не указан PG номер/,
+  );
+});
+
+test("validateFormData uses PG number for surrender", () => {
+  assert.deepEqual(
+    validateFormData({
+      userName: "Горшков Илья",
+      surrender: true,
+      pgNumber: "PG0801813",
+    }),
+    {
+      userName: "Горшков Илья",
+      pgNumber: "PG0801813",
+      issuedBy: "",
+      performedBy: "",
+      ticket: "",
+      intranetName: "",
+      adviros: false,
+      surrender: true,
+    },
   );
 });
 

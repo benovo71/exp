@@ -13,11 +13,21 @@
       <label for="userName">👤 Пользователь</label>
       <input type="text" id="userName" placeholder="Иванов И.И." required />
 
-      <label for="intranetName">👤 PG name</label>
-      <input type="text" id="intranetName" placeholder="gorshkov.i" required />
+      <label class="checkbox-field" for="adviros">
+        <input type="checkbox" id="adviros" />
+        Adviros
+      </label>
 
-      <label for="ticket">RITM / INC</label>
-      <input type="text" id="ticket" placeholder="RITM8463161" required />
+      <label class="checkbox-field" for="surrender">
+        <input type="checkbox" id="surrender" />
+        Сдача компа
+      </label>
+
+      <label class="issue-only-field" for="intranetName">👤 PG name</label>
+      <input class="issue-only-field" type="text" id="intranetName" placeholder="gorshkov.i" required />
+
+      <label class="issue-only-field" for="ticket">RITM / INC</label>
+      <input class="issue-only-field" type="text" id="ticket" placeholder="RITM8463161" required />
 
       <label for="pgNumber">🔢 PG номер</label>
       <input type="text" id="pgNumber" placeholder="PG1047176" required />
@@ -33,7 +43,6 @@
     <div id="status" aria-live="polite"></div>
     <div id="log" class="log"></div>
 
-    <!-- 🔹 type="module" для import/export -->
     <script type="module" src="renderer.js"></script>
   </body>
 </html>
