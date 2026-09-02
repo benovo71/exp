@@ -48,7 +48,11 @@ function renderDocx(templatePath, data) {
   });
 
   document.render(data);
-  return document.getZip().generate({ type: "nodebuffer" });
+  return document.getZip().generate({
+    type: "nodebuffer",
+    compression: "DEFLATE",
+    compressionOptions: { level: 9 },
+  });
 }
 
 function buildTemplateData(formData, pcData) {
