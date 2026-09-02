@@ -198,14 +198,15 @@ function generateOwnerChangeReports(formData) {
 
   return {
     files,
-    notices: [
-      ...(transfer.singleLaptopExcluded
-        ? ["Единственный лэптоп исключен из передачи"]
-        : []),
-      ...(transfer.laptopCount > 1
-        ? [`Найдено лэптопов: ${transfer.laptopCount}`]
-        : []),
-    ],
+    notices:
+      transfer.laptopCount > 0
+        ? [
+            `Лэптопы не передаются (найдено: ${transfer.laptopCount}): ` +
+              transfer.laptops
+                .map((computer) => computer.pgAssetPc || "без PG")
+                .join(", "),
+          ]
+        : [],
     matches: transfer.computers.map((computer) => ({
       pgAssetPc: computer.pgAssetPc,
       pcModel: computer.pcModel,

@@ -5,16 +5,13 @@ export function isLaptop(assetType) {
 }
 
 export function selectComputersForTransfer(computers) {
-  const laptopCount = computers.filter((computer) =>
+  const laptops = computers.filter((computer) =>
     isLaptop(computer.assetType),
-  ).length;
-  const singleLaptopExcluded = laptopCount === 1;
+  );
 
   return {
-    computers: singleLaptopExcluded
-      ? computers.filter((computer) => !isLaptop(computer.assetType))
-      : computers,
-    laptopCount,
-    singleLaptopExcluded,
+    computers: computers.filter((computer) => !isLaptop(computer.assetType)),
+    laptops,
+    laptopCount: laptops.length,
   };
 }
