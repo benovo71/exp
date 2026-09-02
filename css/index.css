@@ -55,6 +55,10 @@ h1 {
   cursor: pointer;
 }
 
+.surrender-only-field[hidden] {
+  display: none;
+}
+
 .return-only-field {
   display: none;
 }
