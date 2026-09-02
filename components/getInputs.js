@@ -14,6 +14,7 @@ export function getFormInputs() {
     intranetName: getValue("intranetName"),
     adviros: document.getElementById("adviros")?.checked ?? false,
     surrender: document.getElementById("surrender")?.checked ?? false,
+    ownerChange: document.getElementById("ownerChange")?.checked ?? false,
   };
 }
 
