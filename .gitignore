@@ -1,2 +1,5 @@
 /node_modules
+output/
+*.log
+~$*.xlsm
 IT HW equipment.xlsm

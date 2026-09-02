@@ -31,10 +31,7 @@ function createWindow() {
 // IPC Обработчики
 // ─────────────────────────────────────────────────────────────
 
-ipcMain.handle("generate-report", async (event, formData) => {
-  console.log("📥 Получено из renderer:", formData);
-  console.log("🔑 Ключи:", Object.keys(formData || {}));
-
+ipcMain.handle("generate-report", async (_event, formData) => {
   try {
     const result = await generateIssueReport(formData);
     return {

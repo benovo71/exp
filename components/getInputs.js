@@ -10,6 +10,8 @@ export function getFormInputs() {
     pgNumber: getValue("pgNumber"),
     issuedBy: getValue("issuedBy"),
     performedBy: getValue("performedBy"),
+    ticket: getValue("ticket"),
+    intranetName: getValue("intranetName"),
   };
 }
 

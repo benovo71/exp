@@ -81,3 +81,15 @@ button:disabled {
   overflow-y: auto;
   border: 1px solid #e0e0e0;
 }
+
+.log-entry--error {
+  color: #a80000;
+}
+
+.log-entry--success {
+  color: #107c10;
+}
+
+.log-entry--info {
+  color: #666;
+}

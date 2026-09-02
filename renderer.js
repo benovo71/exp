@@ -1,69 +1,78 @@
-/**
- * Логика интерфейса (браузер)
- */
-import { getFormInputs, clearForm } from "./components/getInputs.js";
+import { getFormInputs } from "./components/getInputs.js";
+
+const STATUS_COLORS = {
+  info: "#333",
+  success: "#107c10",
+  error: "#a80000",
+};
+
+function getTime() {
+  return new Date().toLocaleTimeString("ru-RU");
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-  const $ = (id) => document.getElementById(id);
+  const reportForm = document.getElementById("reportForm");
+  const generateButton = document.getElementById("generateBtn");
+  const statusElement = document.getElementById("status");
+  const logElement = document.getElementById("log");
 
-  const generateBtn = $("generateBtn");
-  const statusEl = $("status");
-  const logEl = $("log");
+  function addLog(message, type = "info") {
+    const entry = document.createElement("div");
+    entry.className = `log-entry log-entry--${type}`;
+    entry.textContent = `[${getTime()}] ${message}`;
+    logElement.append(entry);
+    logElement.scrollTop = logElement.scrollHeight;
+  }
 
-  const log = (message, type = "info") => {
-    const time = new Date().toLocaleTimeString("ru-RU");
-    const color =
-      type === "error" ? "#a80000" : type === "success" ? "#107c10" : "#666";
-    logEl.innerHTML += `<div style="color:${color}">[${time}] ${message}</div>`;
-    logEl.scrollTop = logEl.scrollHeight;
-  };
+  function setStatus(message, type = "info") {
+    statusElement.textContent = message;
+    statusElement.style.color = STATUS_COLORS[type] ?? STATUS_COLORS.info;
+  }
 
-  const setStatus = (message, type = "info") => {
-    statusEl.textContent = message;
-    statusEl.style.color =
-      type === "error" ? "#a80000" : type === "success" ? "#107c10" : "#333";
-  };
+  function setGeneratingState(isGenerating) {
+    generateButton.disabled = isGenerating;
+    generateButton.textContent = isGenerating
+      ? "⏳ Генерация..."
+      : "🚀 Сгенерировать";
+  }
 
-  generateBtn.addEventListener("click", async () => {
+  reportForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
     if (!window.electronAPI?.generateReport) {
       setStatus("❌ Ошибка: API не подключён", "error");
       return;
     }
 
-    const formData = getFormInputs();
-
-    // 🔹 Валидация
-    if (!formData.userName || !formData.pgNumber) {
+    if (!reportForm.checkValidity()) {
+      reportForm.reportValidity();
       setStatus("❌ Заполните обязательные поля", "error");
       return;
     }
 
-    // UI: загрузка
-    generateBtn.disabled = true;
-    const originalText = generateBtn.innerHTML;
-    generateBtn.innerHTML = "⏳ Генерация...";
+    const formData = getFormInputs();
+    setGeneratingState(true);
     setStatus("");
-    log(`🚀 Запуск: ${formData.userName} | ${formData.pgNumber}`);
+    addLog(`🚀 Запуск: ${formData.userName} | ${formData.pgNumber}`);
 
     try {
       const result = await window.electronAPI.generateReport(formData);
 
       if (result.success) {
         setStatus("✅ Файлы созданы!", "success");
-        log(`📁 ${result.files?.join(", ")}`, "success");
-        // clearForm();
+        addLog(`📁 ${result.files?.join(", ")}`, "success");
       } else {
         setStatus(`❌ ${result.message}`, "error");
-        log(`Ошибка: ${result.message}`, "error");
+        addLog(`Ошибка: ${result.message}`, "error");
       }
-    } catch (err) {
-      setStatus(`❌ ${err.message}`, "error");
-      log(err.stack || err.message, "error");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setStatus(`❌ ${message}`, "error");
+      addLog(message, "error");
     } finally {
-      generateBtn.disabled = false;
-      generateBtn.innerHTML = originalText;
+      setGeneratingState(false);
     }
   });
 
-  log("🔌 Приложение готово", "success");
+  addLog("🔌 Приложение готово", "success");
 });

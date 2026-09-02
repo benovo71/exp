@@ -13,6 +13,12 @@
       <label for="userName">👤 Пользователь</label>
       <input type="text" id="userName" placeholder="Иванов И.И." required />
 
+      <label for="intranetName">👤 PG name</label>
+      <input type="text" id="intranetName" placeholder="gorshkov.i" required />
+
+      <label for="ticket">RITM / INC</label>
+      <input type="text" id="ticket" placeholder="RITM8463161" required />
+
       <label for="pgNumber">🔢 PG номер</label>
       <input type="text" id="pgNumber" placeholder="PG1047176" required />
 
@@ -21,10 +27,10 @@
 
       <label for="performedBy">🔧 Кто осуществил</label>
       <input type="text" id="performedBy" placeholder="Сидоров С.С." required />
-    </form>
 
-    <button id="generateBtn">🚀 Сгенерировать</button>
-    <div id="status"></div>
+      <button type="submit" id="generateBtn">🚀 Сгенерировать</button>
+    </form>
+    <div id="status" aria-live="polite"></div>
     <div id="log" class="log"></div>
 
     <!-- 🔹 type="module" для import/export -->

@@ -3,7 +3,7 @@
  * ⚠️ Только для главного процесса (Node.js)
  */
 import { read, utils } from "xlsx";
-import * as fs from "fs";
+import fs from "node:fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
