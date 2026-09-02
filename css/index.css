@@ -59,13 +59,12 @@ h1 {
   display: none;
 }
 
-.owner-change-field {
+.owner-change-field[hidden] {
   display: none;
 }
 
 .issue-only-field[hidden],
-.pg-search-field[hidden],
-.owner-change-field[hidden] {
+.pg-search-field[hidden] {
   display: none;
 }
 
