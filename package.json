@@ -1,6 +1,6 @@
 {
   "name": "exp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Генератор актов выдачи ПК",
   "license": "ISC",
   "type": "module",
